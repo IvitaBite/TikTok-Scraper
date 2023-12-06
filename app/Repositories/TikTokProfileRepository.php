@@ -26,16 +26,18 @@ class TikTokProfileRepository
         $command = "node tiktok_scraper.js \"$urlsString\"";
         $result = exec($command);
         $decodedProfileData = json_decode($result, true);
-        var_dump($decodedProfileData);//todo
+        //var_dump($decodedProfileData);//todo
         $profileCollection = new TikTokProfileCollection();
 
         foreach ($decodedProfileData as $data) {
+            $viewsSum = $data['viewsSumOfLastFiveVideos']['viewsSum'];
             $profile = new TikTokProfile(
                 $data['profileUrl'],
                 $data['followers'],
                 $data['likes'],
                 $data['likesOfLastFiveVideos'],
-                $data['viewsSumOfLastFiveVideos']
+                //$data['viewsSumOfLastFiveVideos']
+                $viewsSum
             );
 
             $profileCollection->add($profile);

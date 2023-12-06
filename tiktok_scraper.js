@@ -29,26 +29,37 @@ async function fetchTikTokData(urls) {
 
                 const profileData = await page.evaluate(() => {
 
+                    const getFullNumber = (countText) => {
+                        if(!countText) {
+                            return null;
+                        }
+
+                        let multiplier = 1;
+                        if (countText.includes('K')) {
+                            multiplier = 1000;
+                        } else if (countText.includes('M')) {
+                            multiplier = 1000000;
+                        }
+
+                        const countWithoutMultiplier = countText.replace(/[^\d.]/g, '');
+                        const count = parseFloat(countWithoutMultiplier) * multiplier;
+                        return isNaN(count) ? null : Math.round(count);
+                    }
                     const getFollowersCount = () => {
                         const followersCount = document.querySelector('[data-e2e="followers-count"]');
-                        return followersCount ? parseInt(followersCount.textContent.trim()
-                            .replace('K', '000')
-                            .replace('M', '000000')) : null;
+                        return followersCount ? getFullNumber(followersCount.textContent.trim()) : null;
                     };
 
                     const getLikesCount = () => {
                         const likeCount = document.querySelector('[data-e2e="likes-count"]');
-                        return likeCount ? parseInt(likeCount.textContent.trim()
-                            .replace('K', '000')
-                            .replace('M', '000000')) : null;
+                        return likeCount ? getFullNumber(likeCount.textContent.trim()) : null;
                     };
 
                     const getVideoData = () => {
                         const view = document.querySelectorAll('.tiktok-dirst9-StrongVideoCount');
                         const views = Array.from(view)
                             .slice(0, 5)
-                            .map((element) => parseInt(element.textContent.trim().replace('K', '000').replace('M', '000000')))
-                            .filter((value) => !isNaN(value));
+                            .map((element) => getFullNumber(element.textContent.trim()));
 
                         const viewsSum = views.reduce((sum, value) => sum + value, 0);
 
@@ -71,7 +82,7 @@ async function fetchTikTokData(urls) {
                             await page.waitForSelector('[data-e2e="likes-count"]', { timeout: 30000 });
 
                             const likeCount = await page.$eval('[data-e2e="likes-count"]', likesCount => {
-                                return parseInt(likesCount.textContent.trim().replace('K', '000').replace('M', '000000')) || 0;
+                                return getFullNumber(likesCount.textContent.trim()) || 0;
                             });
                             likesArray.push(likeCount);
                         }

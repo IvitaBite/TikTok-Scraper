@@ -64,12 +64,10 @@ class GoogleSpreadsheetRepository
                 $profile->getProfileUrl(),
                 $profile->getFollowers(),
                 $profile->getLikes(),
-                $profile->getLikesOfLastFiveVideos(),
+                implode(', ', $profile->getLikesOfLastFiveVideos()),
                 $profile->getViewsSumOfLastFiveVideos()
             ];
-
             $values[] = $rowData;
-
         }
         return $values;
     }
